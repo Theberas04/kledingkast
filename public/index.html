@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="nl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1d3a4d">
+<meta name="color-scheme" content="light">
+<meta name="description" content="Kledingkast: houd je garderobe bij, zie wat schoon is, plan wasbeurten en krijg een combineeradvies per dag.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kledingkast">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Kledingkast · garderobe, was en combineeradvies">
+<meta property="og:description" content="Je hele garderobe op één plek: foto's, wasbeurten, draaghistorie en een dagelijks combineeradvies.">
+<meta property="og:image" content="/social-card.png">
+<meta property="og:locale" content="nl_NL">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<title>Kledingkast</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#17242e;background:#f4f5f2;--g:#1d3a4d;--a:#2a6f7f;--w:#9a6a1f;--m:#6e7a80;--l:#e4e7e2;--card:#fff}
+*{box-sizing:border-box}
+body{margin:0}
+.top{background:var(--g);color:#fff;padding:22px max(calc((100% - 1120px)/2),22px) 0}
+.brand{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:#a9cfd6;font-weight:800}
+.logo{width:20px;height:20px;flex:0 0 auto}
+.brandsub{color:#7fb0ba;font-weight:700}
+.top h1{font-size:clamp(25px,4vw,34px);margin:8px 0 6px;letter-spacing:-.03em}
+.sub{color:#cfe0e4;font-size:14px;margin:0 0 18px}
+.nav{display:flex;gap:7px;overflow:auto}
+.nav button{border:0;background:transparent;color:#bcd4da;padding:12px 14px;border-radius:9px 9px 0 0;cursor:pointer;white-space:nowrap;font:600 13px system-ui}
+.nav button.active,.nav button:hover{background:#f4f5f2;color:var(--g)}
+.badgeCount{display:inline-grid;place-items:center;min-width:19px;height:19px;border-radius:99px;background:#d7e7ea;color:var(--g);font-size:11px;margin-left:4px;padding:0 5px}
+.wrap{max-width:1120px;margin:24px auto;padding:0 20px 50px}
+.view[hidden]{display:none!important}
+.panel{background:var(--card);border:1px solid var(--l);border-radius:14px;padding:16px}
+.panel h2{font-size:18px;margin:0 0 15px}
+.panelhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.panelhead h2{margin:0}
+summary{cursor:pointer;font-weight:700;color:var(--g);font-size:16.5px;padding:6px 0;list-style:none;display:flex;align-items:center;justify-content:space-between}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"＋";color:var(--a);font-weight:800}
+details[open]>summary::after{content:"－"}
+summary:focus-visible{outline:3px solid #d5e6e9;border-radius:6px}
+.field{display:block;font-size:12px;color:#56646b;margin:12px 0 6px}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid #d7dcd6;border-radius:9px;font:14px system-ui;background:#fff;color:#17242e}
+textarea{min-height:70px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:3px solid #d5e6e9;border-color:#5c94a0}
+button,.btn{border:0;border-radius:9px;padding:10px 13px;font:600 13px system-ui;cursor:pointer;background:#e7ece9;color:var(--g)}
+.btn.primary{background:var(--a);color:#fff}
+.btn.warn{background:#f6eddf;color:var(--w)}
+.btn.danger{background:#f8e9e5;color:#8f3d29}
+.btn.ghost{background:#fff;border:1px solid var(--l)}
+.wide{width:100%;margin-top:13px}
+.hint{font-size:12px;color:var(--m);line-height:1.5;margin-top:6px}
+.muted{font-size:11px;color:var(--m)}
+.notice{font-size:13px;min-height:18px;color:#a34831;margin:7px 0}
+.pill{font-size:11px;color:#2f6b74;background:#eaf3f4;padding:5px 9px;border-radius:999px;white-space:nowrap;display:inline-block}
+.pill.vies{background:#f6eddf;color:var(--w)}
+.pill.in-de-was{background:#e7eef6;color:#2f5d8f}
+.pill.reparatie{background:#f8e9e5;color:#8f3d29}
+.swatch{width:14px;height:14px;border-radius:4px;border:1px solid #0002;display:inline-block;vertical-align:-2px;margin-right:5px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--l);border-radius:14px;padding:16px;color:#65747c;font-size:12px}
+.stat strong{display:block;color:var(--g);font-size:24px;margin-top:2px}
+.filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px;padding:14px;background:var(--card);border:1px solid var(--l);border-radius:14px}
+.filters .field{margin:0 0 6px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.item{background:var(--card);border:1px solid var(--l);border-radius:15px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.item h3{font-size:14px;margin:0}
+.thumb{width:100%;aspect-ratio:1/1;border-radius:11px;background:#eef1ee;object-fit:cover;display:block}
+.thumb.empty{display:grid;place-items:center;color:#9aa5a3;font-size:26px}
+.item .row2{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.item .actions{display:flex;flex-wrap:wrap;gap:6px}
+.item .actions button{flex:1 1 auto;font-size:12px;padding:8px 9px}
+.tabs{display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap}
+.tab{border-radius:999px;padding:8px 12px;background:#e9edea;color:#4b5b51;font-size:12px}
+.tab.active{background:var(--g);color:#fff}
+.list{display:grid;gap:8px}
+.row{display:flex;align-items:center;gap:11px;border:1px solid #eceee9;border-radius:11px;padding:10px}
+.icon{width:38px;height:38px;display:grid;place-items:center;border-radius:10px;background:#eff3f1;color:#33707a;font-weight:750}
+.info{flex:1;min-width:0}
+.info strong{display:block;font-size:14px}
+.advice{display:grid;gap:10px}
+.advice .pick{display:flex;align-items:center;gap:11px;border:1px solid #eceee9;border-radius:11px;padding:9px}
+.advice .pick img{width:58px;height:58px;border-radius:9px;object-fit:cover;background:#eef1ee}
+.advice .pick .ph{width:58px;height:58px;border-radius:9px;background:#eef1ee;display:grid;place-items:center;color:#9aa5a3;font-size:22px}
+.reasons{margin:12px 0 0;padding-left:19px;font-size:12.5px;color:#4a585f;line-height:1.55}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.checks{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+.checks label{font-size:12.5px;display:flex;align-items:center;gap:5px;background:#f2f4f1;border:1px solid var(--l);border-radius:999px;padding:7px 11px}
+.checks input{width:auto}
+.formactions{display:flex;gap:8px;margin-top:14px}
+.formactions .btn{flex:1}
+.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.dow{text-align:center;color:#7b867e;font-size:11px;font-weight:700;padding:5px 0}
+.day{min-height:62px;border:1px solid #eceee9;border-radius:10px;background:#fff;padding:5px;text-align:left;font-size:11px;color:#56646b}
+.day.worn{background:#eaf3f4;border-color:#9dc3c9}
+.day .num{display:block;font-weight:700;color:#2c3b45;font-size:11px}
+.bars{display:grid;gap:8px}
+.bar{display:grid;gap:4px;font-size:12.5px;color:#4a585f}
+.bar .track{height:9px;background:#eaeeea;border-radius:99px;overflow:hidden}
+.bar .fill{height:100%;background:var(--a)}
+.kv{display:grid;gap:6px;font-size:13px}
+.kv div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--l);padding-bottom:5px}
+.empty{text-align:center;color:#7b867e;padding:25px 12px;font-size:13px}
+.chip{font-size:11px;background:#f1f4f1;border:1px solid var(--l);border-radius:999px;padding:4px 9px;color:#4a585f;display:inline-block;margin:0 4px 4px 0}
+@media(max-width:900px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){
+html{-webkit-text-size-adjust:100%}body{overflow-x:hidden}
+.top{padding:14px 16px 0}.brand{font-size:11px;letter-spacing:.11em}.brandsub{display:none}.logo{width:18px;height:18px}
+.top h1{font-size:clamp(20px,6.4vw,24px);margin:9px 0 5px}.sub{font-size:12.5px;margin:0 0 12px}
+.nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;overflow:visible}
+.nav button{display:grid;place-items:center;min-height:46px;padding:8px 2px;font-size:11.5px;line-height:1.2;white-space:normal;text-align:center;border-radius:11px 11px 0 0}
+.badgeCount{min-width:17px;height:17px;font-size:10px;margin-left:2px}
+.wrap{margin-top:14px;padding:0 12px calc(40px + env(safe-area-inset-bottom))}
+.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:13px}
+.stat{padding:11px 10px;font-size:11px;border-radius:12px}.stat strong{font-size:21px}
+.panel{padding:13px;border-radius:13px}.panel h2{font-size:16.5px}
+.filters,.grid,.two,.three{grid-template-columns:1fr}
+.kastBody{display:flex;flex-direction:column}
+.kastBody>.filters{order:1}
+#kastListHead{order:2}
+#itemGrid{order:3}
+#kastNotice{order:4}
+#formPanel{order:5}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.panelhead{flex-direction:column;align-items:flex-start;gap:7px}
+input,select,textarea{font-size:16px;padding:12px}
+button,.btn{min-height:44px;padding:12px 14px;font-size:13.5px}
+.checks label{min-height:40px}
+.formactions{flex-direction:column}
+.day{min-height:54px}
+}
+@media(max-width:400px){.grid{grid-template-columns:1fr}.nav button{font-size:11px}.top h1{font-size:19.5px}}
+</style></head><body>
+<header class="top"><div class="brand"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#a9cfd6"/><path d="M20 20h24v11c0 3-2 5-5 5h-1.5v13h-11V36H25c-3 0-5-2-5-5Z" fill="#1d3a4d"/><path d="M26 18a6 6 0 0 1 12 0v2H26Z" fill="#2a6f7f"/></svg><span>Kledingkast</span><span class="brandsub">· garderobe op orde</span></div><h1>Wat hangt er, wat is schoon, wat trek je aan.</h1><p class="sub">Je hele garderobe met foto's, wasbeurten, draaghistorie en een dagelijks combineeradvies.</p><nav class="nav" aria-label="Hoofdnavigatie">
+<button class="active" data-page="kast">Kast <span class="badgeCount" id="navItems">0</span></button>
+<button data-page="vandaag">Vandaag</button>
+<button data-page="was">Was <span class="badgeCount" id="navWas">0</span></button>
+<button data-page="setjes">Setjes</button>
+<button data-page="analyse">Analyse</button>
+</nav></header>
+<main class="wrap">
+<section class="view" id="page-kast">
+  <div class="stats"><div class="stat">Stuks in de kast<strong id="countItems">0</strong></div><div class="stat">Schoon<strong id="countClean">0</strong></div><div class="stat">Te wassen<strong id="countDirty">0</strong></div><div class="stat">Waarde<strong id="countValue">€ 0</strong></div></div>
+  <div class="kastBody">
+  <div class="filters">
+    <label><span class="field">Categorie</span><select id="filterCategory"><option value="">Alle categorieën</option></select></label>
+    <label><span class="field">Status</span><select id="filterStatus"><option value="">Alle statussen</option></select></label>
+    <label><span class="field">Zoeken</span><input id="filterQuery" type="search" placeholder="Zoek op naam, merk of kleur"></label>
+  </div>
+  <details class="panel" id="formPanel" open>
+    <summary>Kledingstuk toevoegen</summary>
+    <div class="panelhead"><div><div class="hint" id="formTitle">Vul de velden in en voeg het kledingstuk toe aan je kast.</div><div class="hint">Een foto maakt je kast herkenbaar. Zonder foto werkt alles ook.</div></div><span class="pill" id="formMode">nieuw</span></div>
+    <form id="itemForm">
+      <div class="three">
+        <div><label class="field" for="name">Naam</label><input id="name" maxlength="80" placeholder="Bijv. blauw overhemd" required></div>
+        <div><label class="field" for="category">Categorie</label><select id="category"></select></div>
+        <div><label class="field" for="status">Status</label><select id="status"></select></div>
+      </div>
+      <div class="three">
+        <div><label class="field" for="color">Kleur</label><input id="color" maxlength="40" placeholder="Bijv. marineblauw"></div>
+        <div><label class="field" for="colorHex">Kleurcode</label><input id="colorHex" type="color" value="#2a6f7f"></div>
+        <div><label class="field" for="pattern">Patroon</label><input id="pattern" maxlength="40" placeholder="effen, strepen, ruit"></div>
+      </div>
+      <div class="three">
+        <div><label class="field" for="size">Maat</label><input id="size" maxlength="20" placeholder="M, 40, 42"></div>
+        <div><label class="field" for="brand">Merk</label><input id="brand" maxlength="40"></div>
+        <div><label class="field" for="material">Materiaal</label><input id="material" maxlength="60" placeholder="katoen, wol, leer"></div>
+      </div>
+      <div class="two">
+        <div><label class="field" for="price">Prijs in euro's</label><input id="price" type="number" min="0" step="0.05" placeholder="59,95"></div>
+        <div><label class="field" for="photo">Foto</label><input id="photo" type="file" accept="image/*" capture="environment"></div>
+      </div>
+      <label class="field">Seizoenen</label><div class="checks" id="seasons"></div>
+      <label class="field">Gelegenheden</label><div class="checks" id="occasions"></div>
+      <label class="field" for="notes">Notities</label><textarea id="notes" maxlength="400" placeholder="Past bij…, moet nog gestreken worden"></textarea>
+      <p class="hint" id="photoState"></p>
+      <div class="formactions"><button class="btn primary" type="submit" id="saveItem">Toevoegen aan mijn kast</button><button class="btn ghost" type="button" id="resetForm">Velden leegmaken</button></div>
+    </form>
+    <p class="notice" id="itemNotice"></p>
+  </details>
+  <div class="panelhead" id="kastListHead" style="margin-top:22px"><div><h2>Mijn kast</h2><div class="hint" id="kastHint"></div></div><span class="pill" id="kastCount">0 stuks</span></div>
+  <div id="itemGrid" class="grid"></div>
+  <p class="notice" id="kastNotice"></p>
+  </div>
+</section>
+
+<section class="view" id="page-vandaag" hidden>
+  <div class="panelhead"><div><h2>Vandaag</h2><div class="hint">Advies op basis van eigen regels: seizoen, gelegenheid, kleurcombinatie en hoe lang geleden je iets droeg.</div></div></div>
+  <div class="panel">
+    <div class="three">
+      <div><label class="field" for="adviceDate">Datum</label><input id="adviceDate" type="date"></div>
+      <div><label class="field" for="adviceOccasion">Gelegenheid</label><select id="adviceOccasion"></select></div>
+      <div><label class="field" for="adviceRating">Beoordeling na het dragen</label><select id="adviceRating"><option value="">geen</option><option value="5">5 · top</option><option value="4">4 · goed</option><option value="3">3 · prima</option><option value="2">2 · matig</option><option value="1">1 · niets</option></select></div>
+    </div>
+    <div class="formactions"><button class="btn primary" id="newAdvice">Nieuw advies</button><button class="btn" id="wearAdvice">Dragen vandaag</button><button class="btn" id="saveAdvice">Bewaar als setje</button></div>
+    <p class="notice" id="adviceNotice"></p>
+    <div id="adviceBox"></div>
+  </div>
+  <div class="panelhead" style="margin-top:22px"><div><h2>Draaghistorie</h2><div class="hint">Klik op een dag om te zien wat je droeg.</div></div></div>
+  <div class="panel">
+    <div class="panelhead" style="margin-bottom:10px"><button class="btn ghost" id="prevMonth" aria-label="Vorige maand">‹</button><strong id="monthTitle"></strong><button class="btn ghost" id="nextMonth" aria-label="Volgende maand">›</button></div>
+    <div class="calendar" id="historyCalendar"></div>
+    <div id="historyDay" class="list" style="margin-top:14px"></div>
+  </div>
+</section>
+
+<section class="view" id="page-was" hidden>
+  <div class="panelhead"><div><h2>Was</h2><div class="hint">Vies kledingstuk? Vink het aan en start een was. Na "Was klaar" staat alles weer op schoon.</div></div></div>
+  <div class="panel">
+    <div class="two">
+      <div><label class="field" for="washProgram">Programma</label><input id="washProgram" maxlength="40" placeholder="30 graden, wolwas, fijn"></div>
+      <div><label class="field" for="washDate">Gepland op</label><input id="washDate" type="date"></div>
+    </div>
+    <div class="formactions"><button class="btn primary" id="startWash">Start was met geselecteerde kleding</button><button class="btn ghost" id="selectDirty">Selecteer alles wat vies is</button></div>
+    <p class="notice" id="washNotice"></p>
+    <div id="dirtyList" class="list"></div>
+  </div>
+  <div class="panelhead" style="margin-top:22px"><div><h2>Wasbeurten</h2><div class="hint">Openstaande en afgeronde wassen.</div></div></div>
+  <div id="washList" class="list"></div>
+</section>
+
+<section class="view" id="page-setjes" hidden>
+  <div class="panelhead"><div><h2>Setjes</h2><div class="hint">Bewaar combinaties die goed werken en draag ze met één tik opnieuw.</div></div></div>
+  <div class="panel">
+    <form id="outfitForm">
+      <div class="two">
+        <div><label class="field" for="outfitName">Naam van het setje</label><input id="outfitName" maxlength="80" placeholder="Bijv. kantoorsetje" required></div>
+        <div><label class="field" for="outfitOccasion">Gelegenheid</label><select id="outfitOccasion"></select></div>
+      </div>
+      <label class="field" for="outfitItems">Kledingstukken</label><select id="outfitItems" multiple size="6"></select>
+      <div class="formactions"><button class="btn primary" type="submit">Setje opslaan</button></div>
+      <p class="notice" id="outfitNotice"></p>
+    </form>
+  </div>
+  <div id="outfitList" class="list" style="margin-top:16px"></div>
+</section>
+
+<section class="view" id="page-analyse" hidden>
+  <div class="panelhead"><div><h2>Analyse</h2><div class="hint">Wat je hebt, wat je draagt en wat je nooit aantrekt.</div></div></div>
+  <div class="stats" id="analyseTiles"></div>
+  <div class="two">
+    <div class="panel"><h2>Per categorie</h2><div class="bars" id="barsCategory"></div></div>
+    <div class="panel"><h2>Kleurverdeling</h2><div class="bars" id="barsColor"></div></div>
+  </div>
+  <div class="two" style="margin-top:16px">
+    <div class="panel"><h2>Meest gedragen</h2><div class="list" id="mostWorn"></div></div>
+    <div class="panel"><h2>Prijs per dracht</h2><div class="list" id="costPerWear"></div></div>
+  </div>
+  <div class="panel" style="margin-top:16px"><h2>Nooit gedragen</h2><div id="neverWorn" class="list"></div></div>
+</section>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const localDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+let state = {items:[], config:null, outfits:[], washes:[], history:[], advice:null, page:'kast', filter:{category:'',status:'',q:''}, editId:null, photo:null, selectedDirty:new Set(), month:new Date(), seed:0, monthWears:[]};
+
+async function api(url, options = {}) {
+  const response = await fetch(url, {...options, headers:{'content-type':'application/json', ...(options.headers || {})}});
+  let data = {};
+  try { data = await response.json(); } catch { data = {}; }
+  if (!response.ok) throw Error(data.error || 'Er ging iets mis.');
+  return data;
+}
+const payload = (method, data) => ({method, body:JSON.stringify(data)});
+const euro = value => `€ ${Number(value || 0).toFixed(2).replace('.', ',')}`;
+const statusClass = status => status === 'vies' ? 'vies' : status === 'in de was' ? 'in-de-was' : status === 'reparatie' ? 'reparatie' : '';
+const optional = Number.isNaN;
+
+function fillSelect(select, values, first) {
+  const current = select.value;
+  select.innerHTML = (first === undefined ? '' : `<option value="">${esc(first)}</option>`) + values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
+  if (values.includes(current)) select.value = current;
+}
+function fillChecks(container, values, name) {
+  container.innerHTML = values.map(v => `<label><input type="checkbox" name="${name}" value="${esc(v)}"> ${esc(v)}</label>`).join('');
+}
+const checkedValues = name => [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(x => x.value);
+
+function itemCard(item) {
+  const thumb = item.photo ? `<img class="thumb" src="/media/${esc(item.photo)}" alt="${esc(item.name)}" loading="lazy">` : '<div class="thumb empty">👕</div>';
+  const seasons = item.seasons.length ? `<span class="chip">${esc(item.seasons.join(', '))}</span>` : '';
+  const occasions = item.occasions.length ? `<span class="chip">${esc(item.occasions.join(', '))}</span>` : '';
+  return `<article class="item" data-item="${item.id}">${thumb}
+    <div class="row2"><h3>${esc(item.name)}</h3><span class="pill ${statusClass(item.status)}">${esc(item.status)}</span></div>
+    <div class="muted">${item.colorHex ? `<span class="swatch" style="background:${esc(item.colorHex)}"></span>` : ''}${esc(item.color || 'kleur onbekend')} · ${esc(item.category)}${item.brand ? ' · ' + esc(item.brand) : ''}${item.size ? ' · maat ' + esc(item.size) : ''}</div>
+    <div>${seasons}${occasions}</div>
+    <div class="actions">
+      <button class="btn" data-wear="${item.id}">Gedragen</button>
+      <button class="btn warn" data-dirty="${item.id}">Vies</button>
+      <button class="btn" data-edit="${item.id}">Aanpassen</button>
+      ${state.config?.ai?.enabled ? `<button class="btn" data-analyze="${item.id}">Foto lezen</button>` : ''}
+      <button class="btn danger" data-delete="${item.id}">Weg</button>
+    </div></article>`;
+}
+
+function renderKast() {
+  const items = state.items.filter(item =>
+    (!state.filter.category || item.category === state.filter.category) &&
+    (!state.filter.status || item.status === state.filter.status) &&
+    (!state.filter.q || [item.name, item.brand, item.color, item.material, item.notes, item.category].join(' ').toLowerCase().includes(state.filter.q)));
+  $('#itemGrid').innerHTML = items.length ? items.map(itemCard).join('') : '<div class="empty">Geen kledingstukken gevonden met deze filters.</div>';
+  $('#kastCount').textContent = `${items.length} van ${state.items.length} stuks`;
+  $('#kastHint').textContent = state.items.length ? 'Klik op "Gedragen" om iets te dragen en meteen als vies te markeren.' : 'Nog niets in je kast. Voeg hierboven je eerste kledingstuk toe.';
+}
+function renderStats() {
+  const items = state.items;
+  $('#countItems').textContent = items.length;
+  $('#countClean').textContent = items.filter(i => i.status === 'schoon').length;
+  const dirty = items.filter(i => i.status === 'vies' || i.status === 'in de was').length;
+  $('#countDirty').textContent = dirty;
+  $('#countValue').textContent = euro(items.reduce((n, i) => n + (i.price || 0), 0));
+  $('#navItems').textContent = items.length;
+  $('#navWas').textContent = dirty;
+}
+function renderAdvice(advice) {
+  state.advice = advice;
+  if (!advice || !advice.items.length) {
+    $('#adviceBox').innerHTML = `<div class="empty">${esc((advice?.reasons || ['Nog geen advies'])[0])}</div>`;
+    return;
+  }
+  $('#adviceBox').innerHTML = `<div class="advice">${advice.items.map(item => `<div class="pick">
+      ${item.photo ? `<img src="/media/${esc(item.photo)}" alt="${esc(item.name)}">` : '<div class="ph">👕</div>'}
+      <div class="info"><strong>${esc(item.name)}</strong><div class="muted">${esc(item.category)} · ${esc(item.color || 'kleur onbekend')}${item.brand ? ' · ' + esc(item.brand) : ''}</div></div>
+    </div>`).join('')}</div>
+    <ul class="reasons">${advice.reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul>
+    <p class="hint">Seizoen ${esc(advice.season)} · score ${esc(String(advice.score))}</p>`;
+}
+function renderDirty() {
+  const dirty = state.items.filter(item => item.status === 'vies');
+  const inWash = state.items.filter(item => item.status === 'in de was');
+  const parts = [];
+  if (dirty.length) parts.push(`<div class="muted">Vies (${dirty.length})</div>` + dirty.map(item => `<label class="row"><input type="checkbox" data-dirty-pick="${item.id}" ${state.selectedDirty.has(item.id) ? 'checked' : ''}><div class="info"><strong>${esc(item.name)}</strong><div class="muted">${esc(item.category)} · ${esc(item.color || 'kleur onbekend')}</div></div></label>`).join(''));
+  if (inWash.length) parts.push(`<div class="muted">In de was (${inWash.length})</div>` + inWash.map(item => `<div class="row"><div class="icon">💧</div><div class="info"><strong>${esc(item.name)}</strong><div class="muted">${esc(item.category)}</div></div></div>`).join(''));
+  $('#dirtyList').innerHTML = parts.length ? parts.join('') : '<div class="empty">Niets te wassen. Alles is schoon.</div>';
+}
+function renderWashes() {
+  $('#washList').innerHTML = state.washes.length ? state.washes.map(wash => `<div class="row"><div class="icon">${wash.done ? '✓' : '🧺'}</div>
+    <div class="info"><strong>${esc(wash.program || 'Was zonder programma')}</strong>
+      <div class="muted">${wash.done ? 'klaar' : 'gepland'} · ${esc(wash.plannedFor)} · ${wash.items.length} stuks</div>
+      <div class="muted">${wash.items.map(i => esc(i.name)).join(', ')}</div></div>
+    ${wash.done ? '' : `<button class="btn primary" data-wash-done="${wash.id}">Was klaar</button>`}
+    <button class="btn danger" data-wash-cancel="${wash.id}">×</button></div>`).join('') : '<div class="empty">Nog geen wasbeurten gepland.</div>';
+}
+function renderOutfits() {
+  $('#outfitList').innerHTML = state.outfits.length ? state.outfits.map(outfit => `<div class="row"><div class="icon">★</div>
+    <div class="info"><strong>${esc(outfit.name)}</strong><div class="muted">${esc(outfit.occasion || 'geen gelegenheid')} · ${outfit.items.length} stuks</div>
+    <div class="muted">${outfit.items.map(i => esc(i.name)).join(', ')}</div></div>
+    <button class="btn primary" data-outfit-wear="${outfit.id}">Dragen</button>
+    <button class="btn danger" data-outfit-delete="${outfit.id}">×</button></div>`).join('') : '<div class="empty">Nog geen setjes bewaard. Stel er een samen uit je kast of bewaar een advies.</div>';
+}
+function renderHistory() {
+  const year = state.month.getFullYear(), month = state.month.getMonth();
+  $('#monthTitle').textContent = new Intl.DateTimeFormat('nl-NL', {month:'long', year:'numeric'}).format(state.month);
+  const days = ['Ma','Di','Wo','Do','Vr','Za','Zo'];
+  const grid = $('#historyCalendar');
+  grid.innerHTML = days.map(d => `<div class="dow">${d}</div>`).join('');
+  const first = new Date(year, month, 1);
+  const start = new Date(year, month, 1 - ((first.getDay() + 6) % 7));
+  const wornOn = new Map(state.monthWears.map(w => [w.date, w]));
+  for (let i = 0; i < 42; i++) {
+    const day = new Date(start);
+    day.setDate(start.getDate() + i);
+    const iso = localDate(day);
+    const entry = wornOn.get(iso);
+    grid.insertAdjacentHTML('beforeend', `<button class="day ${entry ? 'worn' : ''} ${day.getMonth() !== month ? 'outside' : ''}" data-day="${iso}" style="${day.getMonth() !== month ? 'opacity:.45' : ''}">
+      <span class="num">${day.getDate()}</span>${entry ? esc(entry.items.map(x => x.name).slice(0, 2).join(', ')) : ''}</button>`);
+  }
+}
+function renderDay(iso) {
+  const entry = state.monthWears.find(w => w.date === iso);
+  $('#historyDay').innerHTML = entry
+    ? `<div class="row"><div class="icon">🗓</div><div class="info"><strong>${esc(iso)}</strong><div class="muted">${esc(entry.items.map(i => i.name).join(', '))}</div>${entry.rating ? `<div class="muted">beoordeling ${entry.rating}/5</div>` : ''}${entry.notes ? `<div class="muted">${esc(entry.notes)}</div>` : ''}</div><button class="btn danger" data-wear-delete="${entry.id}">×</button></div>`
+    : '<div class="empty">Op deze dag staat niets geregistreerd.</div>';
+}
+function bars(container, counts, total, swatches = {}) {
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  container.innerHTML = entries.length ? entries.map(([label, n]) => `<div class="bar"><div style="display:flex;justify-content:space-between"><span>${swatches[label] ? `<span class="swatch" style="background:${esc(swatches[label])}"></span>` : ''}${esc(label)}</span><span>${n}</span></div>
+    <div class="track"><div class="fill" style="width:${Math.round((n / total) * 100)}%"></div></div></div>`).join('') : '<div class="empty">Nog geen gegevens.</div>';
+}
+function renderAnalyse(data) {
+  $('#analyseTiles').innerHTML = [
+    ['Stuks', data.total], ['Totale waarde', euro(data.price)], ['Te wassen', data.laundry], ['Bij reparatie', data.repairs],
+  ].map(([label, value]) => `<div class="stat">${label}<strong>${esc(String(value))}</strong></div>`).join('');
+  const swatches = {};
+  for (const item of state.items) if (item.color) swatches[item.color] = item.colorHex;
+  bars($('#barsCategory'), data.perCategory, data.total);
+  bars($('#barsColor'), data.perColor, data.total, swatches);
+  $('#mostWorn').innerHTML = data.mostWorn.length ? data.mostWorn.map(x => `<div class="row"><div class="icon">${x.wears}×</div><div class="info"><strong>${esc(x.item.name)}</strong><div class="muted">${esc(x.item.category)}</div></div></div>`).join('') : '<div class="empty">Nog niets gedragen.</div>';
+  $('#costPerWear').innerHTML = data.costPerWear.length ? data.costPerWear.map(x => `<div class="row"><div class="icon">€</div><div class="info"><strong>${esc(x.item.name)}</strong><div class="muted">${euro(x.item.price)} · ${euro(x.costPerWear)} per keer dragen</div></div></div>`).join('') : '<div class="empty">Vul prijzen in om dit te zien.</div>';
+  $('#neverWorn').innerHTML = data.neverWorn.length ? data.neverWorn.map(item => `<div class="row"><div class="icon">👕</div><div class="info"><strong>${esc(item.name)}</strong><div class="muted">${esc(item.category)}</div></div><button class="btn" data-edit="${item.id}">Aanpassen</button></div>`).join('') : '<div class="empty">Je draagt alles. Mooi zo.</div>';
+}
+function showPage(name) {
+  state.page = name;
+  $$('.view').forEach(view => { view.hidden = view.id !== `page-${name}`; });
+  $$('.nav [data-page]').forEach(button => button.classList.toggle('active', button.dataset.page === name));
+  if (name === 'analyse') loadAnalytics();
+  if (name === 'vandaag') loadHistory();
+}
+async function loadAll() {
+  const [items, outfits, washes] = await Promise.all([api('/api/items'), api('/api/outfits'), api('/api/washes')]);
+  state.items = items; state.outfits = outfits; state.washes = washes;
+  renderStats(); renderKast(); renderDirty(); renderWashes(); renderOutfits();
+  fillSelect($('#outfitItems'), items.map(i => `${i.id}|${i.name}`));
+  $('#outfitItems').innerHTML = items.map(i => `<option value="${i.id}">${esc(i.name)} · ${esc(i.category)}</option>`).join('');
+  for (const option of $$('#outfitItems option')) { const id = Number(option.value); option.textContent = `${items.find(i => i.id === id)?.name || id} · ${items.find(i => i.id === id)?.category || ''}`; }
+}
+async function loadAnalytics() { renderAnalyse(await api('/api/analytics')); }
+async function loadHistory() {
+  const month = `${state.month.getFullYear()}-${String(state.month.getMonth() + 1).padStart(2, '0')}`;
+  state.monthWears = await api(`/api/wear?month=${month}`);
+  renderHistory();
+  const firstWorn = state.monthWears[0];
+  if (firstWorn) renderDay(firstWorn.date); else $('#historyDay').innerHTML = '';
+}
+async function loadAdvice() {
+  const date = $('#adviceDate').value || localDate(new Date());
+  const occasion = $('#adviceOccasion').value || 'casual';
+  renderAdvice(await api(`/api/suggest?occasion=${encodeURIComponent(occasion)}&date=${date}&seed=${state.seed}`));
+}
+function resetForm() {
+  state.editId = null; state.photo = null;
+  $('#itemForm').reset();
+  $('#colorHex').value = '#2a6f7f';
+  $('#photoState').textContent = 'Geen foto gekozen.';
+  $('#formTitle').textContent = 'Kledingstuk toevoegen';
+  $('#formMode').textContent = 'nieuw';
+  $('#saveItem').textContent = 'Toevoegen aan mijn kast';
+}
+function editItem(id) {
+  const item = state.items.find(x => x.id === Number(id));
+  if (!item) return;
+  state.editId = item.id; state.photo = item.photo || null;
+  $('#name').value = item.name; $('#category').value = item.category; $('#status').value = item.status;
+  $('#color').value = item.color; $('#colorHex').value = item.colorHex || '#2a6f7f'; $('#pattern').value = item.pattern;
+  $('#size').value = item.size; $('#brand').value = item.brand; $('#material').value = item.material;
+  $('#price').value = item.price ?? ''; $('#notes').value = item.notes;
+  $$('input[name="seasons"]').forEach(box => box.checked = item.seasons.includes(box.value));
+  $$('input[name="occasions"]').forEach(box => box.checked = item.occasions.includes(box.value));
+  $('#photoState').textContent = item.photo ? 'Huidige foto blijft behouden.' : 'Geen foto gekozen.';
+  $('#formTitle').textContent = `${item.name} aanpassen`;
+  $('#formMode').textContent = 'aanpassen';
+  $('#saveItem').textContent = 'Wijzigingen opslaan';
+  showPage('kast');
+  $('#formPanel').open = true;
+  $('#itemForm').scrollIntoView({behavior:'smooth', block:'center'});
+}
+async function uploadPhoto(file) {
+  const response = await fetch('/api/photos', {method:'POST', headers:{'content-type':file.type || 'image/jpeg'}, body:file});
+  const data = await response.json();
+  if (!response.ok) throw Error(data.error || 'Foto uploaden mislukt.');
+  return data.photo;
+}
+
+$('#itemForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  $('#itemNotice').textContent = '';
+  try {
+    const file = $('#photo').files[0];
+    if (file) state.photo = await uploadPhoto(file);
+    const fields = {
+      name:$('#name').value, category:$('#category').value, status:$('#status').value,
+      color:$('#color').value, colorHex:$('#colorHex').value, pattern:$('#pattern').value,
+      size:$('#size').value, brand:$('#brand').value, material:$('#material').value,
+      price:$('#price').value === '' ? null : Number($('#price').value),
+      seasons:checkedValues('seasons'), occasions:checkedValues('occasions'),
+      notes:$('#notes').value, photo:state.photo || '',
+    };
+    if (state.editId) await api(`/api/items/${state.editId}`, payload('PATCH', fields));
+    else await api('/api/items', payload('POST', fields));
+    const message = state.editId ? 'Kledingstuk bijgewerkt.' : 'Kledingstuk toegevoegd aan je kast.';
+    resetForm();
+    await loadAll();
+    $('#itemNotice').textContent = message;
+  } catch (error) { $('#itemNotice').textContent = error.message; }
+});
+$('#resetForm').addEventListener('click', resetForm);
+$('#itemGrid').addEventListener('click', async event => {
+  const button = event.target.closest('button');
+  if (!button) return;
+  const {wear, dirty, edit, analyze, delete:remove} = button.dataset;
+  try {
+    if (wear) { await api('/api/wear', payload('POST', {date:localDate(new Date()), itemIds:[Number(wear)]})); $('#kastNotice').textContent = 'Geregistreerd als gedragen en op vies gezet.'; }
+    if (dirty) { await api(`/api/items/${dirty}`, payload('PATCH', {status:'vies'})); $('#kastNotice').textContent = 'Op vies gezet.'; }
+    if (edit) editItem(edit);
+    if (analyze) { const result = await api(`/api/items/${analyze}`, payload('PATCH', {action:'analyze'})); $('#kastNotice').textContent = `Foto gelezen: ${result.item.name}.`; }
+    if (remove) { await api(`/api/items/${remove}`, {method:'DELETE'}); $('#kastNotice').textContent = 'Kledingstuk verwijderd.'; }
+    await loadAll();
+  } catch (error) { $('#kastNotice').textContent = error.message; }
+});
+$('#filterCategory').addEventListener('change', event => { state.filter.category = event.target.value; renderKast(); });
+$('#filterStatus').addEventListener('change', event => { state.filter.status = event.target.value; renderKast(); });
+$('#filterQuery').addEventListener('input', event => { state.filter.q = event.target.value.trim().toLowerCase(); renderKast(); });
+
+$('#adviceDate').addEventListener('change', loadAdvice);
+$('#adviceOccasion').addEventListener('change', loadAdvice);
+$('#newAdvice').addEventListener('click', () => { state.seed += 1; loadAdvice().catch(error => { $('#adviceNotice').textContent = error.message; }); });
+$('#wearAdvice').addEventListener('click', async () => {
+  try {
+    if (!state.advice?.items.length) throw Error('Vraag eerst een advies op.');
+    const rating = $('#adviceRating').value === '' ? null : Number($('#adviceRating').value);
+    await api('/api/wear', payload('POST', {date:$('#adviceDate').value || localDate(new Date()), itemIds:state.advice.items.map(i => i.id), rating}));
+    $('#adviceNotice').textContent = 'Geregistreerd. Deze kleding staat nu op vies.';
+    await loadAll(); await loadHistory();
+  } catch (error) { $('#adviceNotice').textContent = error.message; }
+});
+$('#saveAdvice').addEventListener('click', async () => {
+  try {
+    if (!state.advice?.items.length) throw Error('Vraag eerst een advies op.');
+    const name = window.prompt('Naam voor dit setje:', `${state.advice.occasion} ${state.advice.date}`);
+    if (!name) return;
+    await api('/api/outfits', payload('POST', {name, occasion:state.advice.occasion, itemIds:state.advice.items.map(i => i.id)}));
+    $('#adviceNotice').textContent = 'Setje bewaard.';
+    await loadAll();
+  } catch (error) { $('#adviceNotice').textContent = error.message; }
+});
+$('#prevMonth').addEventListener('click', () => { state.month = new Date(state.month.getFullYear(), state.month.getMonth() - 1, 1); loadHistory(); });
+$('#nextMonth').addEventListener('click', () => { state.month = new Date(state.month.getFullYear(), state.month.getMonth() + 1, 1); loadHistory(); });
+$('#historyCalendar').addEventListener('click', event => { const day = event.target.closest('[data-day]'); if (day) renderDay(day.dataset.day); });
+$('#historyDay').addEventListener('click', async event => {
+  const button = event.target.closest('[data-wear-delete]');
+  if (!button) return;
+  await api(`/api/wear/${button.dataset.wearDelete}`, {method:'DELETE'});
+  await loadHistory();
+});
+
+$('#dirtyList').addEventListener('change', event => {
+  const pick = event.target.closest('[data-dirty-pick]');
+  if (!pick) return;
+  const id = Number(pick.dataset.dirtyPick);
+  if (pick.checked) state.selectedDirty.add(id); else state.selectedDirty.delete(id);
+});
+$('#selectDirty').addEventListener('click', () => {
+  state.selectedDirty = new Set(state.items.filter(i => i.status === 'vies').map(i => i.id));
+  renderDirty();
+});
+$('#startWash').addEventListener('click', async () => {
+  try {
+    if (!state.selectedDirty.size) throw Error('Selecteer eerst wat er in de was moet.');
+    await api('/api/washes', payload('POST', {itemIds:[...state.selectedDirty], program:$('#washProgram').value, plannedFor:$('#washDate').value || localDate(new Date())}));
+    state.selectedDirty.clear(); $('#washNotice').textContent = 'Was gestart.';
+    await loadAll();
+  } catch (error) { $('#washNotice').textContent = error.message; }
+});
+$('#washList').addEventListener('click', async event => {
+  const done = event.target.closest('[data-wash-done]'), cancel = event.target.closest('[data-wash-cancel]');
+  try {
+    if (done) { await api(`/api/washes/${done.dataset.washDone}`, {method:'PATCH', body:'{}'}); $('#washNotice').textContent = 'Was klaar: alles staat weer op schoon.'; }
+    if (cancel) { await api(`/api/washes/${cancel.dataset.washCancel}`, {method:'DELETE'}); $('#washNotice').textContent = 'Was geannuleerd; kleding staat weer op vies.'; }
+    await loadAll();
+  } catch (error) { $('#washNotice').textContent = error.message; }
+});
+
+$('#outfitForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  try {
+    const itemIds = [...$('#outfitItems').selectedOptions].map(option => Number(option.value));
+    await api('/api/outfits', payload('POST', {name:$('#outfitName').value, occasion:$('#outfitOccasion').value, itemIds}));
+    $('#outfitForm').reset(); $('#outfitNotice').textContent = 'Setje bewaard.';
+    await loadAll();
+  } catch (error) { $('#outfitNotice').textContent = error.message; }
+});
+$('#outfitList').addEventListener('click', async event => {
+  const wear = event.target.closest('[data-outfit-wear]'), remove = event.target.closest('[data-outfit-delete]');
+  try {
+    if (wear) await api('/api/wear', payload('POST', {date:localDate(new Date()), outfitId:Number(wear.dataset.outfitWear)}));
+    if (remove) await api(`/api/outfits/${remove.dataset.outfitDelete}`, {method:'DELETE'});
+    await loadAll();
+  } catch (error) { $('#outfitNotice').textContent = error.message; }
+});
+
+$$('.nav [data-page]').forEach(button => button.addEventListener('click', () => showPage(button.dataset.page)));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+
+(async () => {
+  try {
+    state.config = await api('/api/config');
+    fillSelect($('#category'), state.config.categories);
+    fillSelect($('#status'), state.config.statuses);
+    fillSelect($('#filterCategory'), state.config.categories, 'Alle categorieën');
+    fillSelect($('#filterStatus'), state.config.statuses, 'Alle statussen');
+    fillSelect($('#adviceOccasion'), state.config.occasions);
+    fillSelect($('#outfitOccasion'), state.config.occasions, 'geen');
+    fillChecks($('#seasons'), state.config.seasons, 'seasons');
+    fillChecks($('#occasions'), state.config.occasions, 'occasions');
+    $('#adviceDate').value = state.config.today;
+    $('#washDate').value = state.config.today;
+    $('#adviceOccasion').value = 'casual';
+    resetForm();
+    if (window.innerWidth <= 760) $('#formPanel').open = false;
+    await loadAll();
+    await loadAdvice();
+    await loadHistory();
+  } catch (error) {
+    $('#kastNotice').textContent = error.message;
+  }
+})();
+</script>
+</body></html>
