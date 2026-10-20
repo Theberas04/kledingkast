@@ -1,4 +1,27 @@
-# Kledingkast
+# Kledingkast → samengevoegd met VoorraadThuis
+
+> **Deze repository is gearchiveerd.** De garderobe is samengevoegd met **[VoorraadThuis](https://github.com/Theberas04/voorraadthuis)** en is daar nu een tab in dezelfde app: één service, één database, één installatie op Proxmox.
+>
+> 👉 **https://github.com/Theberas04/voorraadthuis**
+
+Installeren op Proxmox doe je vanaf VoorraadThuis:
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/Theberas04/voorraadthuis/main/deploy/proxmox/install.sh)
+```
+
+## Wat er veranderd is
+
+- De garderobe draait in dezelfde Node.js-service als VoorraadThuis; de API staat onder `/api/kast/*` en kledingfoto's onder `/media/`.
+- De webpagina heeft er een tab **Kleding** bij gekregen met dezelfde onderdelen als deze app: **Kast**, **Vandaag**, **Was**, **Setjes** en **Analyse**, in de huisstijl van VoorraadThuis.
+- De foto's staan in de LXC in `/var/lib/voorraadthuis/fotos`; kleding, wasbeurten en draaghistorie zitten in dezelfde SQLite-database (`/var/lib/voorraadthuis/voorraad.db`).
+- Alle functies zijn behouden: status per kledingstuk, combineeradvies op eigen regels met beweegredenen, wasbeurten plannen en afronden, setjes bewaren, draaghistorie per maand, analyse met prijs per keer dragen, en optionele AI-tagging van een foto.
+
+De geschiedenis hieronder beschrijft de zelfstandige versie zoals die was.
+
+---
+
+# Kledingkast (archief)
 
 ![Kledingkast op de telefoon](docs/img/hero.png)
 
@@ -59,61 +82,16 @@ Elke uitkomst toont de gebruikte argumenten, zodat je zelf kunt zien waarom een 
 
 Heb je een OpenAI-compatibele dienst (OpenAI, Ollama, LocalAI), dan kan Kledingkast een foto zelf lezen en naam, categorie, kleur, patroon, materiaal en seizoen invullen. Zet daarvoor `AI_BASE_URL`, `AI_API_KEY` en `AI_VISION_MODEL`; zonder die instellingen is de knop **Foto lezen** verborgen en werkt de app volledig handmatig. Wat je zelf invult is altijd leidend.
 
-## Snel starten (lokaal)
-
-Node.js 22.5+ is vereist (gebruikt de ingebouwde `node:sqlite`; er zijn geen npm-dependencies).
-
-```sh
-npm test
-npm start
-```
-
-Open `http://localhost:3200`. Database en foto's komen standaard in `data/` en `data/fotos/`; met `DB_PATH` en `MEDIA_DIR` zet je ze ergens anders.
-
-## Installeren op Proxmox (één commando)
-
-Voer op de Proxmox-host als `root` uit:
-
-```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/Theberas04/kledingkast/main/deploy/proxmox/install.sh)
-```
-
-Het script haalt de bestanden van GitHub, maakt een unprivileged Debian 12 LXC (512 MB, 1 core, 6 GB disk), zet nginx met HTTPS op en start Kledingkast als systemd-service. Vast IP kan zo:
-
-```bash
-CTID=121 STATIC_IP=192.168.1.51/24 GATEWAY=192.168.1.1 \
-  bash <(curl -fsSL https://raw.githubusercontent.com/Theberas04/kledingkast/main/deploy/proxmox/install.sh)
-```
-
-Bijwerken zonder je garderobe kwijt te raken:
-
-```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/Theberas04/kledingkast/main/deploy/proxmox/update-from-github.sh) 121
-```
-
-De updater controleert alles eerst, wisselt via een tussenmap en draait bij een fout automatisch terug. Meer opties en beheercommando's: [`deploy/proxmox/README.md`](deploy/proxmox/README.md).
-
-## Waar je gegevens staan
+## Waar je gegevens stonden
 
 | Pad in de LXC | Inhoud |
 | --- | --- |
 | `/var/lib/kledingkast/kledingkast.db` | Kleding, setjes, draaghistorie en wasbeurten (SQLite). |
 | `/var/lib/kledingkast/fotos/` | De geüploade foto's, één bestand per kledingstuk. |
 
-De app heeft geen login en is bedoeld voor je eigen netwerk; stel hem niet rechtstreeks bloot aan internet. Foto's worden niet verkleind bij het uploaden (maximaal 8 MB per foto).
+In de samengevoegde app staat dit in `/var/lib/voorraadthuis/voorraad.db` en `/var/lib/voorraadthuis/fotos/`.
 
-## Projectstructuur
-
-| Pad | Inhoud |
-| --- | --- |
-| `server.js` | HTTP-server, SQLite-schema, API, foto-opslag en de adviesregels. |
-| `public/index.html` | De hele webpagina: opmaak, mobiele indeling en app-logica. |
-| `public/manifest.webmanifest`, `public/sw.js`, `public/favicon.svg`, `public/icon-*.png` | Webapp-manifest en pictogrammen voor installatie op de telefoon. |
-| `test/app.test.js` | Tests voor kast, foto's, was, dragen, advies, analyse en de webapp-bestanden. |
-| `deploy/proxmox/` | Installer, updater en nginx-configuratie voor de LXC. |
-| `docs/img/` | Beeldmateriaal voor deze README en de deelkaart. |
-
-## API in het kort
+## API van deze versie
 
 | Route | Doet |
 | --- | --- |
@@ -125,6 +103,8 @@ De app heeft geen login en is bedoeld voor je eigen netwerk; stel hem niet recht
 | `GET/POST /api/washes`, `PATCH/DELETE /api/washes/<id>` | Wasbeurten plannen, afronden of annuleren. |
 | `GET/POST /api/outfits`, `DELETE /api/outfits/<id>` | Setjes bewaren en verwijderen. |
 | `GET /api/analytics` | Totalen, kleurverdeling, meest en nooit gedragen, prijs per dracht. |
+
+In VoorraadThuis staan deze routes onder `/api/kast/`.
 
 ## Herkomst en licentie
 
