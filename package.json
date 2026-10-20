@@ -1,0 +1,14 @@
+{
+  "name": "kledingkast",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kledingkast: self-hosted garderobe-beheer in het Nederlands met wasbeurten, draaghistorie en eigen combineeradvies.",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}
